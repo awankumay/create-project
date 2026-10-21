@@ -11,7 +11,7 @@ class SyncEngine {
   void resetAuthentication() { authenticationRequired = false; }
 
   Future<String> synchronize(Session session) async {
-    if (_running) return 'Sinkronisasi sedang berjalan.';
+    if (_running) { return 'Sinkronisasi sedang berjalan.'; }
     if (session.expired || authenticationRequired) {
       authenticationRequired = true;
       return 'Sesi perlu diperbarui. Login online kembali untuk melanjutkan.';
@@ -32,7 +32,7 @@ class SyncEngine {
         } on ApiFailure catch (error) {
           if (error.status == 401) { authenticationRequired = true; return error.message; }
           await database.recordFailure(operation, error.message, permanent: error.permanent);
-          if (!error.permanent) return error.message;
+          if (!error.permanent) { return error.message; }
           rejected++;
         } catch (_) {
           await database.recordFailure(operation, 'Koneksi atau respons API bermasalah.', permanent: false);
@@ -49,11 +49,11 @@ class SyncEngine {
           throw const FormatException('Cursor tidak maju.');
         }
         await database.applyPull(session.scope, rows, next);
-        if (response['has_more'] != true) break;
+        if (response['has_more'] != true) { break; }
       }
       return '$sent dikirim; $rejected ditolak. Sinkronisasi selesai.';
     } on ApiFailure catch (error) {
-      if (error.status == 401) authenticationRequired = true;
+      if (error.status == 401) { authenticationRequired = true; }
       return error.message;
     } catch (_) {
       return 'Pull belum berhasil. Data lokal tetap tersedia; coba kembali.';

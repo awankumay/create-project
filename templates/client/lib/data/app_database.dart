@@ -39,7 +39,7 @@ class PullCursors extends Table {
 
 @DriftDatabase(tables: [Drafts, Outbox, PullCursors])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase(QueryExecutor executor) : super(executor);
+  AppDatabase(super.executor);
   @override
   int get schemaVersion => 1;
 
@@ -97,7 +97,7 @@ class AppDatabase extends _$AppDatabase {
       final data = raw as Map<String, dynamic>;
       final existing = await (select(drafts)..where((d) => d.scope.equals(owner) & d.uuid.equals(data['draft_id'] as String))).getSingleOrNull();
       // A pull cannot acknowledge a pending operation: only its push response can.
-      if (existing != null && existing.state != 'synced') continue;
+      if (existing != null && existing.state != 'synced') { continue; }
       await into(drafts).insertOnConflictUpdate(DraftsCompanion.insert(scope: owner,
         uuid: data['draft_id'] as String, title: data['title'] as String,
         notes: Value(data['notes'] as String?), state: const Value('synced'),

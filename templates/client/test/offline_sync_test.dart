@@ -4,10 +4,10 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import '../lib/data/app_database.dart';
-import '../lib/data/session.dart';
-import '../lib/sync/sync_api.dart';
-import '../lib/sync/sync_engine.dart';
+import 'package:__PROJECT_NAME__/data/app_database.dart';
+import 'package:__PROJECT_NAME__/data/session.dart';
+import 'package:__PROJECT_NAME__/sync/sync_api.dart';
+import 'package:__PROJECT_NAME__/sync/sync_engine.dart';
 
 Session session({int userId = 1, String origin = 'https://example.com'}) => Session(
   origin: origin, userId: userId, name: 'Test', token: 'test-token',
@@ -65,7 +65,7 @@ void main() {
     await database.createDraft(scope: first.scope, deviceId: first.deviceId, title: 'Private draft');
     var pushes = 0;
     final api = SyncApi(MockClient((request) async {
-      if (request.method == 'POST') pushes++;
+      if (request.method == 'POST') { pushes++; }
       return http.Response(jsonEncode({'data': [], 'next_cursor': 0, 'has_more': false}), 200);
     }));
     final engine = SyncEngine(database, api);

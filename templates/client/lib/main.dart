@@ -47,7 +47,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     deviceId = await storage.read(key: 'device_id') ?? const Uuid().v4();
     await storage.write(key: 'device_id', value: deviceId);
     final saved = await storage.read(key: 'session');
-    if (saved != null) session = Session.fromJson(jsonDecode(saved) as Map<String, dynamic>);
+    if (saved != null) { session = Session.fromJson(jsonDecode(saved) as Map<String, dynamic>); }
     startTimer();
   }
 
@@ -63,7 +63,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> login(String origin, String email, String password) async {
-    if (busy) return;
+    if (busy) { return; }
     busy = true; notifyListeners();
     try {
       final authenticated = await api.login(origin, email, password, deviceId);
@@ -78,7 +78,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> save(String title, String notes) async {
     final owner = session;
-    if (owner == null || owner.expired || engine.authenticationRequired) throw StateError('Login online kembali sebelum membuat draft.');
+    if (owner == null || owner.expired || engine.authenticationRequired) { throw StateError('Login online kembali sebelum membuat draft.'); }
     await database.createDraft(scope: owner.scope, deviceId: deviceId, title: title, notes: notes.isEmpty ? null : notes);
     message = 'Tersimpan di perangkat.'; notifyListeners();
     unawaited(sync());
@@ -86,7 +86,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> sync() async {
     final owner = session;
-    if (busy || owner == null) return;
+    if (busy || owner == null) { return; }
     busy = true; notifyListeners();
     try { message = await engine.synchronize(owner); }
     catch (_) { message = 'Sinkronisasi gagal; antrean lokal tetap tersimpan.'; }
@@ -94,14 +94,14 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> retryRejected() async {
-    if (busy || session == null) return;
+    if (busy || session == null) { return; }
     await database.retryRejected(session!.scope);
     await sync();
   }
 
   Future<void> logout() async {
     final owner = session;
-    if (busy || owner == null) return;
+    if (busy || owner == null) { return; }
     busy = true; notifyListeners();
     var revoked = true;
     try { await api.logout(owner); } catch (_) { revoked = false; }
@@ -185,14 +185,14 @@ class _DraftPageState extends State<DraftPage> {
   void dispose() { title.dispose(); notes.dispose(); super.dispose(); }
 
   Future<void> save() async {
-    if (saving) return;
+    if (saving) { return; }
     setState(() => saving = true);
     try {
       await widget.state.save(title.text, notes.text);
       title.clear(); notes.clear();
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal menyimpan. Periksa isian, sesi, dan ruang penyimpanan.')));
-    } finally { if (mounted) setState(() => saving = false); }
+      if (mounted) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal menyimpan. Periksa isian, sesi, dan ruang penyimpanan.'))); }
+    } finally { if (mounted) { setState(() => saving = false); } }
   }
 
   @override
@@ -220,9 +220,9 @@ class _DraftPageState extends State<DraftPage> {
           Expanded(child: StreamBuilder<List<Draft>>(
             stream: state.database.watchDrafts(owner.scope),
             builder: (context, snapshot) {
-              if (snapshot.hasError) return const Text('Database lokal belum dapat dibaca.');
+              if (snapshot.hasError) { return const Text('Database lokal belum dapat dibaca.'); }
               final rows = snapshot.data ?? [];
-              if (rows.isEmpty) return const Center(child: Text('Belum ada draft. Coba simpan saat server tidak tersambung.'));
+              if (rows.isEmpty) { return const Center(child: Text('Belum ada draft. Coba simpan saat server tidak tersambung.')); }
               return ListView.builder(itemCount: rows.length, itemBuilder: (context, index) {
                 final row = rows[index];
                 final label = switch (row.state) {

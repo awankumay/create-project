@@ -147,7 +147,7 @@ function installProject(array $arguments): int
             runCommand([PHP_BINARY, 'artisan', 'test', '--compact', '--filter=OfflineDraftSyncTest'], $backend);
             if ($mobile) {
                 runCommand(['flutter', 'pub', 'get'], $stage.'/apps/client');
-                runCommand(['dart', 'run', 'build_runner', 'build', '--delete-conflicting-outputs'], $stage.'/apps/client');
+                runCommand(['dart', 'run', 'build_runner', 'build'], $stage.'/apps/client');
                 runCommand(['dart', 'format', 'lib', 'test'], $stage.'/apps/client');
                 runCommand(['flutter', 'analyze'], $stage.'/apps/client');
                 runCommand(['flutter', 'test'], $stage.'/apps/client');

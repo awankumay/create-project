@@ -51,7 +51,7 @@ Gunakan database SQLite demo yang dibuat installer. Sebelum beralih MySQL, isi k
 ```bash
 cd apps/client
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 dart format lib test
 flutter analyze
 flutter test
