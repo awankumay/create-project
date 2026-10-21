@@ -19,6 +19,8 @@ class OfflineDraftSyncTest extends TestCase
 
     private function headers(User $user, array $abilities = ['drafts:read', 'drafts:write']): array
     {
+        // Each test request must resolve its bearer token afresh, like a real HTTP request.
+        app('auth')->forgetGuards();
         return ['Authorization' => 'Bearer '.$user->createToken('test', $abilities)->plainTextToken];
     }
 
