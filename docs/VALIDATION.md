@@ -1,15 +1,32 @@
-# Validation status
+# Validation status — 21 October 2026
 
-This document distinguishes source checks from runnable integration tests.
+## Verified runtime result
 
-## Local environment
+[GitHub Actions run 39604270836](https://github.com/awankumay/create-project/actions/runs/39604270836) completed successfully for source commit `edd8caa73f3e28c1815a93bc3c7f3451957ac362`.
 
-The editing environment has Bash, Python, Node and Git but no installed PHP, Composer or Flutter/Dart runtime. Attempts to obtain system packages/SDK metadata were blocked or unsuccessful. No complete installer run, Laravel boot, Flutter analyze/test, Windows build or Android build is claimed from that environment.
+| Check | Result |
+|---|---|
+| Native PHP lint and Bash syntax | Passed |
+| Installer dry-run, invalid input, target/symlink refusal | Passed |
+| Full Laravel + Flutter project installation | Passed |
+| Laravel API and Filament tests | 7 passed, 32 assertions |
+| Flutter dependency resolution and Drift code generation | Passed |
+| Flutter analyzer | No issues found |
+| Flutter offline tests | 6 passed |
+| Laravel boot/about and API route listing | Passed |
 
-Bash syntax, Python compilation, template structure/OpenAPI parsing and source inspection are run locally. PHP source may additionally be syntax-parsed with a JavaScript PHP parser; this is not equivalent to PHP runtime tests.
+The verified run used Ubuntu, PHP 8.4.26, Laravel 13.38.0, and Flutter stable. Dependencies were resolved at installation time; generated project lockfiles are not part of this installer repository.
 
-## Automated verification
+Backend tests include idempotent replay, changed-operation conflict, UUID overwrite refusal, auth/abilities/ownership, cursor validation, login/logout, positive rendering of the dashboard/read-only resource, and denial of panel access for non-admins.
 
-`.github/workflows/starter.yml` provisions PHP 8.4, Composer and Flutter stable on Ubuntu. It lints PHP/Bash, tests installer argument/target safety, generates a complete starter, runs backend tests and Flutter code generation/analyze/tests, then checks Laravel boot/routes. Consult actual GitHub Actions results for pass/fail; a committed workflow alone is not proof of success.
+Flutter tests cover database reopen persistence, lost acknowledgement with identical retry payload, account/server isolation, persistent 422 rejection, 401 reauthentication handling, and atomic pull/cursor rollback.
 
-The Flutter transport tests use an HTTP test client. They validate client retry/persistence and isolation. Laravel tests independently validate server idempotency. A native-device end-to-end restart test, simultaneous MySQL request test and release build remain required before deploying business data.
+## Boundaries
+
+The Flutter transport tests use an HTTP test client. Laravel tests independently validate real server/database behavior using the generated app and SQLite. These are not native-device end-to-end tests.
+
+Windows executable compilation, Android APK compilation, OS secure-storage integration on physical devices, printer/scanner integration and concurrent MySQL request tests have not been run in this validation. Validate these on the target hardware before deploying business data. No production readiness, background-while-closed sync, encrypted draft database or granular enterprise RBAC is claimed.
+
+## Local source checks
+
+The editing environment has Bash, Python, Node and Git but no installed PHP, Composer or Flutter/Dart runtime. Bash syntax, Python compilation, template/OpenAPI parsing, diff checks and source inspection passed locally. Runtime verification above was performed by GitHub Actions, not by substituting a placeholder or mock installer locally.

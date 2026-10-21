@@ -114,7 +114,7 @@ Alamat API: Windows lokal `http://127.0.0.1:8000`, emulator Android `http://10.0
 
 ## Pengujian
 
-Workflow [Starter verification](.github/workflows/starter.yml) memasang starter lengkap, memeriksa boot/routes, dan menjalankan tes yang dihasilkan.
+Workflow [Starter verification](.github/workflows/starter.yml) memasang starter lengkap, memeriksa boot/routes, dan menjalankan tes yang dihasilkan. [Run terverifikasi](https://github.com/awankumay/create-project/actions/runs/39604270836) berhasil: **7 tes backend, 6 tes Flutter, dan analyzer tanpa temuan**.
 
 Backend: replay identik, konflik key, penolakan overwrite, auth/abilities/ownership, cursor, login/logout, dan akses panel.
 
