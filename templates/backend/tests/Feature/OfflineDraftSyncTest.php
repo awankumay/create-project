@@ -85,6 +85,13 @@ class OfflineDraftSyncTest extends TestCase
         $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
+    public function test_admin_dashboard_and_read_only_resource_render(): void
+    {
+        $user = User::factory()->create(['is_admin' => true]);
+        $this->actingAs($user)->get('/admin')->assertOk();
+        $this->get('/admin/offline-drafts')->assertOk();
+    }
+
     public function test_non_admin_users_cannot_open_the_admin_panel(): void
     {
         $this->actingAs(User::factory()->create())->get('/admin')->assertForbidden();

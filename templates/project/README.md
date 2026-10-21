@@ -14,6 +14,8 @@ Buat password Anda sendiri pada prompt. Panel: http://127.0.0.1:8000/admin. Guna
 
 ## Jalankan client
 
+Khusus profil laravel-offline; profil laravel-admin tidak membuat apps/client.
+
 ```bash
 cd apps/client
 flutter run -d windows

@@ -19,7 +19,10 @@ function runCommand(array $arguments, ?string $directory = null): void
 
 function removeTree(string $path): void
 {
-    if (is_link($path) || is_file($path)) { unlink($path); return; }
+    if (is_link($path) || is_file($path)) {
+        if (!is_link($path)) { @chmod($path, 0666); } // Git object files may be read-only on Windows.
+        unlink($path); return;
+    }
     foreach (new FilesystemIterator($path) as $item) { removeTree($item->getPathname()); }
     rmdir($path);
 }
@@ -45,6 +48,23 @@ function executableExists(string $command): bool
         }
     }
     return false;
+}
+
+function installerCommit(): string
+{
+    $directory = dirname(__DIR__).'/.git';
+    if (!is_file($directory.'/HEAD')) { return ''; }
+    $head = trim(file_get_contents($directory.'/HEAD'));
+    if (preg_match('/^[a-f0-9]{40}$/D', $head)) { return $head; }
+    if (!str_starts_with($head, 'ref: ')) { return ''; }
+    $reference = substr($head, 5);
+    if (is_file($directory.'/'.$reference)) { return trim(file_get_contents($directory.'/'.$reference)); }
+    if (is_file($directory.'/packed-refs')) {
+        foreach (file($directory.'/packed-refs', FILE_IGNORE_NEW_LINES) as $line) {
+            if (str_ends_with($line, ' '.$reference)) { return substr($line, 0, 40); }
+        }
+    }
+    return '';
 }
 
 function installProject(array $arguments): int
@@ -135,7 +155,7 @@ function installProject(array $arguments): int
         }
         file_put_contents($stage.'/starter-source.json', json_encode([
             'preset' => $options['preset'], 'laravel_skeleton_commit' => LARAVEL_SOURCE_SHA,
-            'installer_commit' => trim((string) shell_exec('git -C '.escapeshellarg(dirname(__DIR__)).' rev-parse HEAD 2>/dev/null')),
+            'installer_commit' => installerCommit(),
             'dependencies_installed' => !$options['skip-install'],
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
         if (!$options['skip-install']) {
