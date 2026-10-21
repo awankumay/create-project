@@ -1,0 +1,115 @@
+openapi: 3.0.3
+info:
+  title: Offline Draft API
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:8000/api/v1
+paths:
+  /auth/login:
+    post:
+      summary: Exchange credentials for an expiring personal access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, device_name]
+              properties:
+                email: {type: string, format: email}
+                password: {type: string, format: password}
+                device_name: {type: string, maxLength: 80}
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user, token, expires_at]
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id: {type: integer}
+                      name: {type: string}
+                  token: {type: string}
+                  expires_at: {type: string, format: date-time}
+        '422': {description: Invalid credentials or input}
+        '429': {description: Rate limited}
+  /auth/session:
+    delete:
+      summary: Revoke the current token
+      security: [{bearerAuth: []}]
+      responses:
+        '204': {description: Revoked}
+        '401': {description: Unauthorized or expired}
+  /sync/drafts:
+    post:
+      summary: Create one immutable draft idempotently
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [operation_id, draft_id, device_id, title]
+              properties:
+                operation_id: {type: string, format: uuid}
+                draft_id: {type: string, format: uuid}
+                device_id: {type: string, format: uuid}
+                title: {type: string, minLength: 1, maxLength: 120}
+                notes: {type: string, nullable: true, maxLength: 2000}
+      responses:
+        '200':
+          description: Committed or identical replay; the response is stable on replay
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: {$ref: '#/components/schemas/Draft'}
+        '401': {description: Unauthorized or expired}
+        '403': {description: Missing write ability}
+        '409': {description: Operation reused with changed data or draft UUID already exists}
+        '422': {description: Invalid input}
+        '429': {description: Rate limited}
+    get:
+      summary: Pull the authenticated user's append-only drafts
+      security: [{bearerAuth: []}]
+      parameters:
+        - in: query
+          name: cursor
+          schema: {type: integer, minimum: 0, default: 0}
+      responses:
+        '200':
+          description: At most 100 rows; persist the next cursor atomically with the rows
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: {$ref: '#/components/schemas/Draft'}
+                  next_cursor: {type: integer}
+                  has_more: {type: boolean}
+        '401': {description: Unauthorized or expired}
+        '403': {description: Missing read ability}
+        '422': {description: Invalid cursor}
+        '429': {description: Rate limited}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer}
+  schemas:
+    Draft:
+      type: object
+      required: [draft_id, device_id, title, notes, server_sequence, created_at]
+      properties:
+        draft_id: {type: string, format: uuid}
+        device_id: {type: string, format: uuid}
+        title: {type: string}
+        notes: {type: string, nullable: true}
+        server_sequence: {type: integer}
+        created_at: {type: string, format: date-time}

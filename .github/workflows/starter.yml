@@ -1,0 +1,45 @@
+name: Starter verification
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  installer-and-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: curl, dom, fileinfo, intl, mbstring, openssl, pdo_sqlite, tokenizer, xml
+          tools: composer:v2
+          coverage: none
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Lint PHP and Bash
+        run: |
+          find installer templates/backend -name '*.php' -print0 | xargs -0 -n1 php -l
+          php -l create-project.php
+          bash -n create-project.sh
+      - name: Installer argument and safety tests
+        run: php tests/installer_test.php
+      - name: Install complete starter and run generated tests
+        run: php create-project.php ci-starter --parent "$RUNNER_TEMP"
+      - name: Backend boot and routes
+        working-directory: ${{ runner.temp }}/ci-starter/apps/backend
+        run: |
+          php artisan about
+          php artisan route:list --path=api
+      - name: Upload validation logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laravel-failure-logs
+          path: ${{ runner.temp }}/.ci-starter-install-*/apps/backend/storage/logs/*.log
+          if-no-files-found: ignore

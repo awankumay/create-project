@@ -1,0 +1,10 @@
+**/.env
+**/.env.*
+!**/.env.example
+**/vendor/
+**/node_modules/
+**/.dart_tool/
+**/build/
+**/*.sqlite
+**/*.sqlite-*
+**/storage/*.key

@@ -1,0 +1,27 @@
+name: __PROJECT_NAME__
+description: Laravel and Flutter offline draft starter.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  drift: ^2.32.0
+  flutter_secure_storage: ^9.2.4
+  http: ^1.5.0
+  path: ^1.9.1
+  path_provider: ^2.1.5
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  drift_dev: ^2.32.0
+  build_runner: ^2.4.13
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
